@@ -1,6 +1,7 @@
 ﻿namespace AdventOfCode
 
 open System
+open System.Text.RegularExpressions
 
 // This is a set of methods that I found at https://github.com/CameronAavik/AdventOfCode
 // 
@@ -18,3 +19,4 @@ module Common =
     let asStringArray : string [] -> string [] = Array.map string
     let asIntArray : string [] -> int [] = Array.map int
     let splitBy (c : string) f (str : string) = str.Split([| c |], StringSplitOptions.None) |> f
+    let (|Regex|_|) pattern input = Regex.Match(input, pattern) |> (fun m -> if m.Success then Some(List.tail [ for g in m.Groups -> g.Value ]) else None)
