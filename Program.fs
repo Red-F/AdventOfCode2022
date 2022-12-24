@@ -29,7 +29,7 @@ let getSolver year day part printResult =
     | 5 -> run Year2022Day05.solver | 6 -> run Year2022Day06.solver | 7 -> run Year2022Day07.solver | 8 -> run Year2022Day08.solver
     | 9 -> run Year2022Day09.solver
     | 10 -> run Year2022Day10.solver | 11 -> run Year2022Day11.solver | 12 -> run Year2022Day12.solver | 13 -> run Year2022Day13.solver
-    | 14 -> run Year2022Day14.solver
+    | 14 -> run Year2022Day14.solver | 15 -> run Year2022Day15.solver
     | day -> fun _ -> printf "."
   | year -> fun _ -> printfn "Invalid Year: %i" year
 
