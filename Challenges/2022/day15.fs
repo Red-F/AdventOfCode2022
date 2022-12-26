@@ -32,28 +32,29 @@ let distance (sx, sy) (bx, by) =
 
 let writeMap (map: Map<int64*int64,char>) =
   let limits = fst (Map.minKeyValue map) |> (fun a ->  {MinX = fst a; MaxX = fst a; MinY = snd a; MaxY = snd a})
-  let limits = map |> Map.fold (fun acc (x, y) v -> {MinX = min x acc.MinX; MaxX = max x acc.MaxX; MinY = min y acc.MinY; MaxY = max y acc.MaxY}) limits
+  let limits = map |> Map.fold (fun acc (x, y) _ -> {MinX = min x acc.MinX; MaxX = max x acc.MaxX; MinY = min y acc.MinY; MaxY = max y acc.MaxY}) limits
   for y in limits.MinY .. limits.MaxY do
     for x in limits.MinX .. limits.MaxX do
       Console.Write(if map.ContainsKey (x,y) then map[x,y] else '.')
     Console.WriteLine()
+  Console.WriteLine()
     
 let solvePart1 data =
-  let map, bas = data
-  // let definitionToCoordinates d = d |> (fun (_, x, y) -> x - maxXY.MinX, y - maxXY.MinY)
-  // let eliminateBeacons (sx,sy) dist =
-  //   for y in max 0 (sy - dist) .. min maxXY.MaxY (sy + dist) do
-  //     for x in max 0 (sx - dist) .. min maxXY.MaxX (sx + dist) do
-  //       match distance (x, y) (sx, sy) with
-  //       | d when d <= dist && map[x, y] = '.' -> map[x,y] <- '#'
-  //       | _ -> ()
-  // writeMap map
-  // [('S', 8, 7); ('E', 2, 10)] |> (fun (x: (char*int*int) list) -> eliminateBeacons (definitionToCoordinates x.Head) (distance (definitionToCoordinates x.Head) (definitionToCoordinates x.Tail.Head)))
+  let map, bas = data |> (fun (m: Map<int64*int64,char>, b) -> m, b)
+  let definitionToCoordinates d = d |> (fun (_, x, y) -> x, y)
+  let eliminateBeacons (sx,sy) dist =
+    seq { for y in sy - dist .. sy + dist do for x in sx - dist .. sx + dist -> (x, y) }
+    |> Seq.fold (fun (acc: Map<int64*int64, char>) (x, y) -> match distance (x, y) (sx, sy) with | d when d <= dist && acc.ContainsKey (x, y) |> not -> acc.Add ((x, y), '#') | _ -> acc) map
+        
+        
+        
+  writeMap map
+  let oneSensor = [('S', 8L, 7L); ('E', 2L, 10L)] |> (fun (x: (char*int64*int64) list) -> eliminateBeacons (definitionToCoordinates x.Head) (distance (definitionToCoordinates x.Head) (definitionToCoordinates x.Tail.Head)))
   // bas |> Seq.iter (fun (x: (char*int*int) list) -> eliminateBeacons (definitionToCoordinates x.Head) (distance (definitionToCoordinates x.Head) (definitionToCoordinates x.Tail.Head)))
   // writeMap map
   // data
   // |> (fun (_, bas, _) -> Seq.map (fun (x: (char*int*int) list) -> distance (definitionToCoordinates x.Head) (definitionToCoordinates x.Tail.Head)) bas)
-  writeMap map
+  writeMap oneSensor
   map 
   |> printfn "%A"
 
