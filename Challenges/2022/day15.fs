@@ -22,7 +22,6 @@ let parseSegments lines =
     | _ -> failwith "mismatch"
   let beaconsAndSensors = Seq.map step lines
   let theMap = beaconsAndSensors |> Seq.collect List.toSeq |> Map.ofSeq
-  let z = theMap[(8L, 7L)]
   let map = sparseMatrix()
   beaconsAndSensors |> Seq.iter (fun l -> List.iter (fun ((x, y), c) -> map[x, y] <- c) l)
   theMap, beaconsAndSensors
@@ -41,16 +40,18 @@ let writeMap (map: Map<int64*int64,char>) =
     
 let solvePart1 data =
   let map, bas = data |> (fun (m: Map<int64*int64,char>, b) -> m, b)
-  let definitionToCoordinates d = d |> (fun (_, x, y) -> x, y)
-  let eliminateBeacons (sx,sy) dist =
+  let definitionToCoordinates d = d |> (fun ((x, y), _) -> x, y)
+  let eliminateBeacons (sx,sy) dist theMap =
     seq { for y in sy - dist .. sy + dist do for x in sx - dist .. sx + dist -> (x, y) }
-    |> Seq.fold (fun (acc: Map<int64*int64, char>) (x, y) -> match distance (x, y) (sx, sy) with | d when d <= dist && acc.ContainsKey (x, y) |> not -> acc.Add ((x, y), '#') | _ -> acc) map
+    |> Seq.fold (fun (acc: Map<int64*int64, char>) (x, y) -> match distance (x, y) (sx, sy) with | d when d <= dist && acc.ContainsKey (x, y) |> not -> acc.Add ((x, y), '#') | _ -> acc) theMap
         
         
         
   writeMap map
-  let oneSensor = [('S', 8L, 7L); ('E', 2L, 10L)] |> (fun (x: (char*int64*int64) list) -> eliminateBeacons (definitionToCoordinates x.Head) (distance (definitionToCoordinates x.Head) (definitionToCoordinates x.Tail.Head)))
+  // let oneSensor = [('S', 8L, 7L); ('E', 2L, 10L)] |> (fun (x: (char*int64*int64) list) -> eliminateBeacons (definitionToCoordinates x.Head) (distance (definitionToCoordinates x.Head) (definitionToCoordinates x.Tail.Head)))
   // bas |> Seq.iter (fun (x: (char*int*int) list) -> eliminateBeacons (definitionToCoordinates x.Head) (distance (definitionToCoordinates x.Head) (definitionToCoordinates x.Tail.Head)))
+  let oneSensor = bas |> Seq.fold (fun acc (x: ((int64*int64)*char) list) -> eliminateBeacons (definitionToCoordinates x.Head) (distance (definitionToCoordinates x.Head) (definitionToCoordinates x.Tail.Head)) acc) map
+  // bas |> Seq.fold (fun acc (x: (char*int64*int64) list) -> acc = eliminateBeacons (definitionToCoordinates x.Head) (distance (definitionToCoordinates x.Head) (definitionToCoordinates x.Tail.Head))) map
   // writeMap map
   // data
   // |> (fun (_, bas, _) -> Seq.map (fun (x: (char*int*int) list) -> distance (definitionToCoordinates x.Head) (definitionToCoordinates x.Tail.Head)) bas)
