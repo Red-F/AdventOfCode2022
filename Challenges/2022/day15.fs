@@ -68,9 +68,7 @@ let solvePart1 data =
 
 let solvePart2 data =
   let map, bas = data
-  // let targetRow = 2000000L
-  let targetRow = 10L
-  seq { for i in 0L .. 20L do i }
+  seq { for i in 0L .. 4000000L do i }
   |> Seq.map (constructRow map bas)
   |> Seq.filter (fun s -> (Seq.head s, Seq.last s, Seq.length s) |> (fun (((xs,_),_), ((xe,_),_), count) -> int64 count <> (xe-xs+1L)))
   |> Seq.head |> (fun s -> (Seq.head s, s)) |> (fun (((x,y),_),s) -> Seq.fold (fun (ax, ay) ((x,y),_) -> if y = ay then (ax,ay) else if x <> (ax+1L) then (x-1L,y) else (x,ay)) (x-1L,y-1L) s)
